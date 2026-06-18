@@ -1,0 +1,595 @@
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e1117;--surface:#161b27;--surface2:#1e2538;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8eaf0;--muted:#6b7280;--muted2:#9ca3af;
+  --radius:16px;--rad-sm:10px;--font:"Segoe UI",system-ui,sans-serif;--font-mono:"Consolas","Courier New",monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.page{max-width:960px;margin:0 auto;padding:36px 24px 60px;position:relative}
+.page::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.header{display:flex;align-items:center;gap:16px;margin-bottom:28px;position:relative;z-index:1}
+.header__logo{width:54px;height:54px;border-radius:50%;border:2px solid var(--border2);background:#0c3a5a;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.header__title{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.header__sub{font-size:12px;color:var(--muted);margin-top:2px}
+.header__time{margin-left:auto;text-align:right;font-family:var(--font-mono);font-size:12px;color:var(--muted2);line-height:1.6;flex-shrink:0}
+.status-strip{display:flex;gap:10px;align-items:center;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-sm);margin-bottom:22px;position:relative;z-index:1;flex-wrap:wrap}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;flex-shrink:0}
+.status-dot.off{background:#ef4444;box-shadow:0 0 6px #ef4444}
+.status-text{font-size:12px;color:var(--muted2);flex:1}
+.status-sheet-btn{font-size:11px;color:#3b82f6;border:1px solid rgba(59,130,246,.3);background:transparent;border-radius:6px;padding:4px 10px;cursor:pointer;transition:background .12s}
+.status-sheet-btn:hover{background:rgba(59,130,246,.1)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;position:relative;z-index:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px;margin-bottom:26px;position:relative;z-index:1}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 15px 14px;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s}
+.card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 10px 28px rgba(0,0,0,.4)}
+.card::before{content:'';position:absolute;top:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:var(--clr,#3b82f6);opacity:.1;filter:blur(20px);pointer-events:none;transition:opacity .18s}
+.card:hover::before{opacity:.2}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--clr,#3b82f6);border-radius:var(--radius) var(--radius) 0 0}
+.card__head{display:flex;align-items:flex-start;gap:10px}
+.card__icon{width:36px;height:36px;border-radius:8px;background:color-mix(in srgb,var(--clr,#3b82f6) 15%,transparent);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card__info{flex:1;min-width:0}
+.card__name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card__desc{font-size:10.5px;color:var(--muted);line-height:1.4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* DB LINK STRIP — NEW */
+.card__db{border-top:1px solid var(--border);padding-top:9px;display:flex;align-items:center;gap:6px}
+.card__db-icon{font-size:13px;flex-shrink:0;opacity:.7}
+.card__db-label{font-size:10px;color:var(--muted);flex-shrink:0}
+.card__db-link{flex:1;font-size:10.5px;color:#3b82f6;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:pointer;transition:color .12s}
+.card__db-link:hover{color:#93c5fd;text-decoration:underline}
+.card__db-link.empty{color:var(--muted);cursor:pointer;font-style:italic}
+.card__db-link.empty:hover{color:var(--muted2)}
+.card__db-open{width:22px;height:22px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;flex-shrink:0;transition:background .12s,color .12s;line-height:1}
+.card__db-open:hover{background:var(--surface2);color:var(--text)}
+
+/* APP LINK */
+.card__footer{display:flex;align-items:center;justify-content:space-between}
+.card__app-link{font-size:10.5px;color:var(--clr,#3b82f6);text-decoration:none;display:flex;align-items:center;gap:3px;opacity:.85;transition:opacity .12s}
+.card__app-link:hover{opacity:1}
+.card__app-link.empty{color:var(--muted);cursor:pointer;font-style:italic}
+.card__arrow{font-size:14px;color:var(--muted);transition:transform .18s,color .18s}
+.card:hover .card__arrow{transform:translateX(3px);color:var(--clr,#3b82f6)}
+
+/* Edit action buttons */
+.card__actions{position:absolute;top:8px;right:8px;display:none;gap:4px;z-index:2}
+.edit-mode .card__actions{display:flex}
+.card__act-btn{width:23px;height:23px;border-radius:5px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.card__act-btn:hover{background:var(--surface);color:var(--text)}
+.card__act-btn.del:hover{background:#3f1f1f;color:#ef4444;border-color:rgba(239,68,68,.3)}
+
+/* ACTIONS BAR */
+.actions-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;position:relative;z-index:1}
+.btn-add{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px dashed var(--border2);border-radius:var(--rad-sm);padding:9px 16px;font-size:13px;font-weight:500;color:var(--muted2);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn-add:hover{background:var(--surface2);border-color:rgba(255,255,255,.25);color:var(--text)}
+.btn-sm{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);border-radius:var(--rad-sm);padding:9px 13px;font-family:var(--font);font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+.btn-sm:hover,.btn-sm.active{background:var(--surface2);border-color:var(--border2);color:var(--text)}
+.btn-export{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(59,130,246,.35);border-radius:var(--rad-sm);padding:9px 13px;font-family:var(--font);font-size:12px;font-weight:600;color:#3b82f6;cursor:pointer;transition:background .12s,border-color .12s;margin-left:auto}
+.btn-export:hover{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.6)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:100;display:none;place-items:center;padding:20px}
+.overlay.open{display:grid}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:24px 20px 20px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.modal__title{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.form-row{margin-bottom:11px}
+.form-label{display:block;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.form-input{width:100%;padding:8px 11px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--rad-sm);font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .12s}
+.form-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.form-input::placeholder{color:var(--muted)}
+.form-hint{font-size:10.5px;color:var(--muted);margin-top:4px}
+.form-divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.color-grid{display:flex;gap:7px;flex-wrap:wrap}
+.color-opt{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .12s,border-color .12s}
+.color-opt:hover{transform:scale(1.15)}
+.color-opt.selected{border-color:white;transform:scale(1.15)}
+.icon-grid{display:flex;gap:5px;flex-wrap:wrap}
+.icon-opt{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .12s,border-color .12s}
+.icon-opt:hover{background:var(--surface2)}
+.icon-opt.selected{background:var(--surface2);border-color:rgba(255,255,255,.35)}
+.modal__actions{display:flex;gap:8px;margin-top:16px}
+.btn{flex:1;padding:9px;border-radius:var(--rad-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .12s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn--primary{background:#3b82f6;color:#fff}
+.btn--ghost{background:transparent;border:1.5px solid var(--border2);color:var(--muted2)}
+.btn--ghost:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+
+/* Sheet config modal */
+.modal-sheet{max-width:460px}
+.sheet-info{background:var(--surface2);border-radius:var(--rad-sm);padding:10px 13px;font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:14px}
+.sheet-info code{background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;font-family:var(--font-mono);font-size:11px;color:#93c5fd}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;padding:5px 0 5px 26px;font-size:12px;color:var(--muted2);position:relative;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-list li::before{content:counter(step);position:absolute;left:0;top:5px;width:17px;height:17px;border-radius:50%;background:rgba(59,130,246,.2);color:#3b82f6;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tab-bar{display:flex;gap:2px;background:var(--surface2);border-radius:var(--rad-sm);padding:3px;margin-bottom:14px}
+.tab{flex:1;padding:6px 10px;font-size:12px;font-weight:500;color:var(--muted);border:none;background:transparent;border-radius:7px;cursor:pointer;transition:background .12s,color .12s}
+.tab.active{background:var(--surface);color:var(--text)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e2538;border:1px solid var(--border2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none;transition:transform .25s,opacity .25s;opacity:0;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.footer{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;position:relative;z-index:1}
+.footer a{color:#3b82f6;text-decoration:none}
+@media(max-width:520px){.header__time{display:none}.grid{grid-template-columns:1fr 1fr}.btn-export span{display:none}.page{padding:20px 14px 48px}}
+</style>
+
+<div class="page" id="app">
+  <div class="header">
+    <div class="header__logo">🚢</div>
+    <div>
+      <div class="header__title">Portal Aplikasi UPT-TPI</div>
+      <div class="header__sub" id="unitName">UPT Tempat Pelelangan Ikan</div>
+    </div>
+    <div class="header__time" id="htime"></div>
+  </div>
+
+  <div class="status-strip" id="statusStrip">
+    <div class="status-dot off" id="statusDot"></div>
+    <div class="status-text" id="statusText">Database belum dikonfigurasi</div>
+    <button class="status-sheet-btn" onclick="openSheetModal()">⚙ Atur Database</button>
+  </div>
+
+  <div class="section-label">Aplikasi Tersedia</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="actions-bar">
+    <button class="btn-add" onclick="openModal()">＋ Tambah Aplikasi</button>
+    <button class="btn-sm" id="btnEdit" onclick="toggleEdit()">✎ Atur</button>
+    <button class="btn-sm" onclick="syncFromSheet()">⟳ Sync</button>
+    <button class="btn-export" onclick="exportFile()">⬇ <span>Export HTML</span></button>
+  </div>
+
+  <div class="footer">Dikembangkan oleh <strong>Doni Yan Ariyanto / Rumah Koding Rembang</strong> — <a href="mailto:doni.yan27@gmail.com">doni.yan27@gmail.com</a></div>
+</div>
+
+<!-- Modal Tambah/Edit Aplikasi -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal__title" id="modalTitle">Tambah Aplikasi</div>
+    <div class="form-row">
+      <label class="form-label">Nama Aplikasi</label>
+      <input class="form-input" id="fName" placeholder="cth: Data Lelang" maxlength="30">
+    </div>
+    <div class="form-row">
+      <label class="form-label">URL Aplikasi</label>
+      <input class="form-input" id="fUrl" placeholder="https://..." type="url">
+      <div class="form-hint">Link utama yang dibuka saat kartu diklik</div>
+    </div>
+    <hr class="form-divider">
+    <div class="form-row">
+      <label class="form-label">🗄 Link Database (Google Spreadsheet)</label>
+      <input class="form-input" id="fDbUrl" placeholder="https://docs.google.com/spreadsheets/d/..." type="url">
+      <div class="form-hint">Spreadsheet data khusus aplikasi ini — ditampilkan di bawah kartu</div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Label Database</label>
+      <input class="form-input" id="fDbLabel" placeholder="cth: Data Lelang 2025" maxlength="40">
+      <div class="form-hint">Nama singkat yang muncul sebagai teks link (opsional)</div>
+    </div>
+    <hr class="form-divider">
+    <div class="form-row">
+      <label class="form-label">Deskripsi Singkat</label>
+      <input class="form-input" id="fDesc" placeholder="opsional" maxlength="60">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Ikon</label>
+      <div class="icon-grid" id="iconGrid"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Warna</label>
+      <div class="color-grid" id="colorGrid"></div>
+    </div>
+    <div class="modal__actions">
+      <button class="btn btn--ghost" onclick="closeModal()">Batal</button>
+      <button class="btn btn--primary" id="btnSave" onclick="saveApp()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfigurasi Sheet Global -->
+<div class="overlay" id="overlaySheet" onclick="overlaySheetClick(event)">
+  <div class="modal modal-sheet">
+    <div class="modal__title">⚙ Konfigurasi Database Global</div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('setup')" id="tab-setup">Panduan</button>
+      <button class="tab" onclick="switchTab('connect')" id="tab-connect">Hubungkan</button>
+      <button class="tab" onclick="switchTab('unit')" id="tab-unit">Info Unit</button>
+    </div>
+    <div class="tab-panel active" id="panel-setup">
+      <div class="sheet-info">Google Spreadsheet sebagai backend via Apps Script Web App. Setiap kartu juga bisa punya link Spreadsheet sendiri.</div>
+      <ol class="step-list">
+        <li>Buat Spreadsheet baru, beri nama <code>DB Portal TPI</code></li>
+        <li>Buat sheet <code>apps</code> dengan kolom: <code>id | name | url | dbUrl | dbLabel | desc | icon | color | active</code></li>
+        <li>Buka <strong>Extensions → Apps Script</strong>, paste script (tombol bawah)</li>
+        <li>Deploy → New Deployment → Web App, akses: <em>Anyone</em></li>
+        <li>Salin URL Deployment → tab "Hubungkan"</li>
+      </ol>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn--ghost" style="font-size:12px" onclick="copyScript()">📋 Salin Apps Script</button>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-connect">
+      <div class="form-row">
+        <label class="form-label">URL Apps Script Web App</label>
+        <input class="form-input" id="fSheetUrl" placeholder="https://script.google.com/macros/s/.../exec" type="url">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Secret Key (opsional)</label>
+        <input class="form-input" id="fSheetKey" placeholder="biarkan kosong jika tidak pakai" type="password">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn--ghost" style="font-size:12px;flex:1" onclick="testConnection()">🔌 Test Koneksi</button>
+        <button class="btn btn--primary" style="flex:1;font-size:13px" onclick="saveSheetConfig()">Simpan</button>
+      </div>
+      <div id="connResult" style="margin-top:8px;font-size:12px;color:var(--muted);display:none"></div>
+    </div>
+    <div class="tab-panel" id="panel-unit">
+      <div class="form-row">
+        <label class="form-label">Nama Unit / Instansi</label>
+        <input class="form-input" id="fUnitName" placeholder="UPT Tempat Pelelangan Ikan" maxlength="60">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Lokasi / Kota</label>
+        <input class="form-input" id="fUnitLoc" placeholder="cth: Kabupaten Rembang" maxlength="60">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email Admin</label>
+        <input class="form-input" id="fUnitEmail" placeholder="email@example.com" type="email">
+      </div>
+      <button class="btn btn--primary" style="width:100%;margin-top:4px;font-size:13px" onclick="saveUnitInfo()">Simpan Info Unit</button>
+    </div>
+    <div style="margin-top:14px;text-align:right">
+      <button class="btn btn--ghost" style="font-size:12px;padding:6px 16px" onclick="closeSheetModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var ICONS=['🐟','🦈','📋','📊','📝','🌐','📚','🏆','📅','🔔','👥','📁','🖥️','🎯','📌','🧪','🎨','📢','🚢','⚓','🪙','📉','📈','🔑','🗂️','💰','📦','🔧'];
+var COLORS=['#0ea5e9','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6','#a855f7','#64748b','#22d3ee'];
+
+var DEFAULT_APPS=[
+  {id:1,name:"Data Lelang",url:"",dbUrl:"",dbLabel:"Spreadsheet Lelang",desc:"Pencatatan hasil lelang ikan",icon:"🐟",color:"#0ea5e9",active:true},
+  {id:2,name:"Retribusi",url:"",dbUrl:"",dbLabel:"Data Retribusi",desc:"Pengelolaan retribusi TPI",icon:"💰",color:"#10b981",active:true},
+  {id:3,name:"Data Nelayan",url:"",dbUrl:"",dbLabel:"Daftar Nelayan",desc:"Registrasi & data nelayan",icon:"👥",color:"#f59e0b",active:true},
+  {id:4,name:"Kapal & Armada",url:"",dbUrl:"",dbLabel:"Data Armada",desc:"Inventaris kapal nelayan",icon:"🚢",color:"#8b5cf6",active:true},
+  {id:5,name:"Laporan",url:"",dbUrl:"",dbLabel:"Rekap Laporan",desc:"Laporan harian & bulanan",icon:"📊",color:"#ef4444",active:true},
+  {id:6,name:"SKRD / SSRD",url:"",dbUrl:"",dbLabel:"Arsip SKRD",desc:"Surat ketetapan retribusi",icon:"📋",color:"#f97316",active:true},
+];
+
+var apps=[];
+var editMode=false;
+var editingId=null;
+var selIcon=ICONS[0];
+var selColor=COLORS[0];
+var sheetConfig={url:'',key:''};
+var unitInfo={name:'UPT Tempat Pelelangan Ikan',location:'',email:''};
+
+var DAYS=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+var MONTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+function tick(){
+  var n=new Date();
+  var t=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+  document.getElementById('htime').innerHTML='<span style="font-size:17px;font-weight:700;letter-spacing:1px">'+t+'</span><br>'+DAYS[n.getDay()]+', '+n.getDate()+' '+MONTHS[n.getMonth()]+' '+n.getFullYear();
+}
+tick();setInterval(tick,1000);
+
+function loadStorage(){
+  try{
+    var a=localStorage.getItem('tpi_apps');
+    var c=localStorage.getItem('tpi_sheet');
+    var u=localStorage.getItem('tpi_unit');
+    apps=a?JSON.parse(a):DEFAULT_APPS.map(function(x){return Object.assign({},x)});
+    if(c)sheetConfig=JSON.parse(c);
+    if(u)unitInfo=JSON.parse(u);
+  }catch(e){apps=DEFAULT_APPS.map(function(x){return Object.assign({},x)});}
+}
+function saveStorage(){try{localStorage.setItem('tpi_apps',JSON.stringify(apps));}catch(e){}}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function shortenUrl(url){
+  try{
+    var u=new URL(url);
+    if(u.hostname.includes('docs.google.com')){
+      var m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return m?'sheets/…'+m[1].slice(-6):u.hostname;
+    }
+    return u.hostname+(u.pathname.length>1?u.pathname.slice(0,18)+'…':'');
+  }catch(e){return url.slice(0,30)+(url.length>30?'…':'');}
+}
+
+function updateStatus(){
+  var dot=document.getElementById('statusDot');
+  var txt=document.getElementById('statusText');
+  var sub=document.getElementById('unitName');
+  var label=unitInfo.name+(unitInfo.location?' — '+unitInfo.location:'');
+  sub.textContent=label;
+  if(sheetConfig.url){
+    dot.className='status-dot';
+    txt.innerHTML='Terhubung ke Google Spreadsheet &nbsp;·&nbsp; <span style="color:#10b981">'+apps.filter(function(a){return a.active!==false;}).length+' aplikasi aktif</span>';
+  } else {
+    dot.className='status-dot off';
+    txt.textContent='Database lokal — klik "Atur Database" untuk menghubungkan Spreadsheet';
+  }
+}
+
+function render(){
+  var grid=document.getElementById('grid');
+  grid.innerHTML='';
+  var activeApps=apps.filter(function(a){return a.active!==false;});
+  if(!activeApps.length){
+    var empty=document.createElement('div');
+    empty.style.cssText='grid-column:1/-1;text-align:center;padding:32px;color:var(--muted);font-size:13px';
+    empty.textContent='Belum ada aplikasi. Klik "+ Tambah Aplikasi" untuk mulai.';
+    grid.appendChild(empty);updateStatus();return;
+  }
+  activeApps.forEach(function(app,i){
+    var card=document.createElement('div');
+    card.className='card';
+    card.style.setProperty('--clr',app.color);
+    card.style.animationDelay=(i*.05+.04)+'s';
+
+    var dbHtml='';
+    if(app.dbUrl){
+      var displayLabel=app.dbLabel||shortenUrl(app.dbUrl);
+      dbHtml='<div class="card__db">'+
+        '<span class="card__db-icon">🗄</span>'+
+        '<span class="card__db-label">DB:</span>'+
+        '<a class="card__db-link" href="'+esc(app.dbUrl)+'" target="_blank" rel="noopener" title="'+esc(app.dbUrl)+'" onclick="event.stopPropagation()">'+esc(displayLabel)+'</a>'+
+        '<a class="card__db-open" href="'+esc(app.dbUrl)+'" target="_blank" rel="noopener" title="Buka database" onclick="event.stopPropagation()">↗</a>'+
+      '</div>';
+    } else {
+      dbHtml='<div class="card__db">'+
+        '<span class="card__db-icon" style="opacity:.4">🗄</span>'+
+        '<span class="card__db-label" style="color:var(--muted)">DB:</span>'+
+        '<span class="card__db-link empty" onclick="promptDbUrl(event,'+app.id+')">+ tambah link database</span>'+
+      '</div>';
+    }
+
+    var appLinkHtml='';
+    if(app.url){
+      appLinkHtml='<a class="card__app-link" href="'+esc(app.url)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">Buka Aplikasi ↗</a>';
+    } else {
+      appLinkHtml='<span class="card__app-link empty" onclick="event.stopPropagation();promptAppUrl(event,'+app.id+')">+ tambah URL</span>';
+    }
+
+    card.innerHTML=
+      '<div class="card__head">'+
+        '<div class="card__icon">'+esc(app.icon)+'</div>'+
+        '<div class="card__info">'+
+          '<div class="card__name">'+esc(app.name)+'</div>'+
+          (app.desc?'<div class="card__desc">'+esc(app.desc)+'</div>':'')+
+        '</div>'+
+      '</div>'+
+      dbHtml+
+      '<div class="card__footer">'+
+        appLinkHtml+
+        '<span class="card__arrow">→</span>'+
+      '</div>'+
+      '<div class="card__actions">'+
+        '<button class="card__act-btn" title="Edit" onclick="editApp(event,'+app.id+')">✎</button>'+
+        '<button class="card__act-btn del" title="Hapus" onclick="deleteApp(event,'+app.id+')">✕</button>'+
+      '</div>';
+
+    if(!editMode){
+      card.addEventListener('click',function(e){
+        if(e.target.tagName==='A'||e.target.tagName==='BUTTON'||e.target.classList.contains('card__db-link')||e.target.classList.contains('card__app-link'))return;
+        if(app.url){window.open(app.url,'_blank','noopener');}
+        else{promptAppUrl(e,app.id);}
+      });
+    }
+    grid.appendChild(card);
+  });
+  grid.classList.toggle('edit-mode',editMode);
+  updateStatus();
+}
+
+function promptDbUrl(e,id){
+  e.stopPropagation();
+  var app=apps.find(function(a){return a.id===id;});
+  if(!app)return;
+  var url=prompt('Link Google Spreadsheet untuk "'+app.name+'":', app.dbUrl||'https://docs.google.com/spreadsheets/d/');
+  if(url===null)return;
+  url=url.trim();
+  app.dbUrl=url;
+  var lbl=prompt('Label database (kosongkan untuk otomatis):', app.dbLabel||'');
+  if(lbl!==null)app.dbLabel=lbl.trim();
+  saveStorage();pushToSheet(app);render();showToast('✓ Link database disimpan','success');
+}
+
+function promptAppUrl(e,id){
+  if(e)e.stopPropagation();
+  var app=apps.find(function(a){return a.id===id;});
+  if(!app)return;
+  var url=prompt('URL Aplikasi untuk "'+app.name+'":', app.url||'https://');
+  if(url===null)return;
+  url=url.trim();
+  if(url){app.url=url;saveStorage();pushToSheet(app);render();}
+}
+
+function toggleEdit(){
+  editMode=!editMode;
+  var btn=document.getElementById('btnEdit');
+  btn.classList.toggle('active',editMode);
+  btn.textContent=editMode?'✓ Selesai':'✎ Atur';
+  render();
+}
+
+function buildIconGrid(sel){
+  var g=document.getElementById('iconGrid');g.innerHTML='';
+  ICONS.forEach(function(ic){
+    var el=document.createElement('div');
+    el.className='icon-opt'+(ic===sel?' selected':'');
+    el.textContent=ic;el.onclick=function(){selIcon=ic;buildIconGrid(ic);};
+    g.appendChild(el);
+  });
+}
+function buildColorGrid(sel){
+  var g=document.getElementById('colorGrid');g.innerHTML='';
+  COLORS.forEach(function(c){
+    var el=document.createElement('div');
+    el.className='color-opt'+(c===sel?' selected':'');
+    el.style.background=c;
+    el.onclick=function(){selColor=c;buildColorGrid(c);document.getElementById('btnSave').style.background=c;};
+    g.appendChild(el);
+  });
+}
+
+function openModal(app){
+  editingId=app?app.id:null;
+  selIcon=app?app.icon:ICONS[0];
+  selColor=app?app.color:COLORS[0];
+  document.getElementById('modalTitle').textContent=app?'Edit Aplikasi':'Tambah Aplikasi';
+  document.getElementById('fName').value=app?app.name:'';
+  document.getElementById('fUrl').value=app?app.url:'';
+  document.getElementById('fDbUrl').value=app?app.dbUrl||'':'';
+  document.getElementById('fDbLabel').value=app?app.dbLabel||'':'';
+  document.getElementById('fDesc').value=app?app.desc:'';
+  document.getElementById('btnSave').style.background=selColor;
+  buildIconGrid(selIcon);buildColorGrid(selColor);
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(function(){document.getElementById('fName').focus();},60);
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');editingId=null;}
+function overlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+function saveApp(){
+  var name=document.getElementById('fName').value.trim();
+  var url=document.getElementById('fUrl').value.trim();
+  var dbUrl=document.getElementById('fDbUrl').value.trim();
+  var dbLabel=document.getElementById('fDbLabel').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  if(!name){document.getElementById('fName').focus();return;}
+  if(editingId!==null){
+    var app=apps.find(function(a){return a.id===editingId;});
+    if(app){app.name=name;app.url=url;app.dbUrl=dbUrl;app.dbLabel=dbLabel;app.desc=desc;app.icon=selIcon;app.color=selColor;pushToSheet(app);}
+  } else {
+    var newApp={id:Date.now(),name:name,url:url,dbUrl:dbUrl,dbLabel:dbLabel,desc:desc,icon:selIcon,color:selColor,active:true};
+    apps.push(newApp);pushToSheet(newApp);
+  }
+  saveStorage();render();closeModal();showToast('✓ Aplikasi disimpan','success');
+}
+function editApp(e,id){e.preventDefault();e.stopPropagation();var a=apps.find(function(x){return x.id===id;});if(a)openModal(a);}
+function deleteApp(e,id){
+  e.preventDefault();e.stopPropagation();
+  var a=apps.find(function(x){return x.id===id;});
+  if(!a||!confirm('Hapus "'+a.name+'"?'))return;
+  apps=apps.filter(function(x){return x.id!==id;});
+  saveStorage();render();showToast('Aplikasi dihapus');
+  if(sheetConfig.url)deleteFromSheet(id);
+}
+
+function openSheetModal(){
+  document.getElementById('fSheetUrl').value=sheetConfig.url||'';
+  document.getElementById('fSheetKey').value=sheetConfig.key||'';
+  document.getElementById('fUnitName').value=unitInfo.name||'UPT Tempat Pelelangan Ikan';
+  document.getElementById('fUnitLoc').value=unitInfo.location||'';
+  document.getElementById('fUnitEmail').value=unitInfo.email||'';
+  switchTab('setup');
+  document.getElementById('overlaySheet').classList.add('open');
+}
+function closeSheetModal(){document.getElementById('overlaySheet').classList.remove('open');}
+function overlaySheetClick(e){if(e.target===document.getElementById('overlaySheet'))closeSheetModal();}
+function switchTab(name){
+  ['setup','connect','unit'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active',t===name);
+    document.getElementById('panel-'+t).classList.toggle('active',t===name);
+  });
+}
+function saveSheetConfig(){
+  var url=document.getElementById('fSheetUrl').value.trim();
+  var key=document.getElementById('fSheetKey').value.trim();
+  if(!url){showToast('Masukkan URL Apps Script','error');return;}
+  sheetConfig={url:url,key:key};
+  try{localStorage.setItem('tpi_sheet',JSON.stringify(sheetConfig));}catch(e){}
+  updateStatus();showToast('✓ Konfigurasi disimpan','success');closeSheetModal();
+}
+function saveUnitInfo(){
+  unitInfo={
+    name:document.getElementById('fUnitName').value.trim()||'UPT Tempat Pelelangan Ikan',
+    location:document.getElementById('fUnitLoc').value.trim(),
+    email:document.getElementById('fUnitEmail').value.trim()
+  };
+  try{localStorage.setItem('tpi_unit',JSON.stringify(unitInfo));}catch(e){}
+  updateStatus();showToast('✓ Info unit disimpan','success');
+}
+function testConnection(){
+  var url=document.getElementById('fSheetUrl').value.trim();
+  var res=document.getElementById('connResult');
+  if(!url){res.style.display='block';res.textContent='⚠ Masukkan URL terlebih dahulu';return;}
+  res.style.display='block';res.textContent='⟳ Menguji koneksi...';res.style.color='var(--muted2)';
+  fetch(url+'?action=ping'+(document.getElementById('fSheetKey').value?'&key='+encodeURIComponent(document.getElementById('fSheetKey').value):''),{method:'GET',mode:'cors'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.status==='ok'){res.style.color='#10b981';res.textContent='✓ Koneksi berhasil! Sheet: '+(d.sheet||'-');}
+      else{res.style.color='#ef4444';res.textContent='✗ Respons tidak dikenal: '+JSON.stringify(d);}
+    })
+    .catch(function(){res.style.color='#f59e0b';res.textContent='⚠ Tidak bisa terhubung. Pastikan deploy sebagai "Anyone".';});
+}
+function syncFromSheet(){
+  if(!sheetConfig.url){showToast('Konfigurasi database dulu','error');openSheetModal();return;}
+  showToast('⟳ Mengambil data...');
+  fetch(sheetConfig.url+'?action=getApps'+(sheetConfig.key?'&key='+encodeURIComponent(sheetConfig.key):''),{method:'GET',mode:'cors'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.apps&&Array.isArray(d.apps)){apps=d.apps;saveStorage();render();showToast('✓ Sync berhasil ('+d.apps.length+' app)','success');}
+      else showToast('✗ Format data tidak dikenal','error');
+    })
+    .catch(function(){showToast('✗ Gagal terhubung','error');});
+}
+function pushToSheet(app){
+  if(!sheetConfig.url)return;
+  fetch(sheetConfig.url,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'upsertApp',app:app,key:sheetConfig.key||''})}).catch(function(){});
+}
+function deleteFromSheet(id){
+  if(!sheetConfig.url)return;
+  fetch(sheetConfig.url,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'deleteApp',id:id,key:sheetConfig.key||''})}).catch(function(){});
+}
+
+var APPS_SCRIPT_CODE='function doGet(e){\n  var key=PropertiesService.getScriptProperties().getProperty("SECRET_KEY")||"";\n  var p=e.parameter;\n  if(key&&p.key!==key)return resp({status:"error",msg:"Unauthorized"});\n  var action=p.action||"getApps";\n  var ss=SpreadsheetApp.getActiveSpreadsheet();\n  var sh=ss.getSheetByName("apps")||ss.insertSheet("apps");\n  if(action==="ping")return resp({status:"ok",sheet:sh.getName()});\n  if(action==="getApps"){\n    var data=sh.getDataRange().getValues();\n    if(data.length<2)return resp({apps:[]});\n    var headers=data[0];\n    var apps=data.slice(1).map(function(row){\n      var obj={};\n      headers.forEach(function(h,i){obj[h]=row[i];});\n      obj.active=obj.active!==false&&obj.active!=="FALSE"&&obj.active!==0;\n      return obj;\n    }).filter(function(a){return a.active;});\n    return resp({apps:apps});\n  }\n  return resp({status:"error",msg:"Unknown action"});\n}\nfunction doPost(e){\n  var key=PropertiesService.getScriptProperties().getProperty("SECRET_KEY")||"";\n  var body=JSON.parse(e.postData.contents||"{}");\n  if(key&&body.key!==key)return resp({status:"error",msg:"Unauthorized"});\n  var ss=SpreadsheetApp.getActiveSpreadsheet();\n  var sh=ss.getSheetByName("apps")||ss.insertSheet("apps");\n  if(sh.getLastRow()===0)sh.appendRow(["id","name","url","dbUrl","dbLabel","desc","icon","color","active"]);\n  if(body.action==="upsertApp"){\n    var app=body.app;\n    var data=sh.getDataRange().getValues();\n    var headers=data[0];\n    var idCol=headers.indexOf("id");\n    var found=-1;\n    for(var i=1;i<data.length;i++){if(String(data[i][idCol])===String(app.id)){found=i+1;break;}}\n    var row=headers.map(function(h){return app[h]!==undefined?app[h]:""});\n    if(found>0)sh.getRange(found,1,1,row.length).setValues([row]);\n    else sh.appendRow(row);\n    return resp({status:"ok"});\n  }\n  if(body.action==="deleteApp"){\n    var data2=sh.getDataRange().getValues();\n    var idCol2=data2[0].indexOf("id");\n    for(var j=data2.length-1;j>=1;j--){if(String(data2[j][idCol2])===String(body.id)){sh.deleteRow(j+1);break;}}\n    return resp({status:"ok"});\n  }\n  return resp({status:"error",msg:"Unknown action"});\n}\nfunction resp(obj){\n  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);\n}';
+
+function copyScript(){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(APPS_SCRIPT_CODE).then(function(){showToast('✓ Script disalin','success');}).catch(function(){fallbackCopy(APPS_SCRIPT_CODE);});
+  } else fallbackCopy(APPS_SCRIPT_CODE);
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  showToast('✓ Script disalin','success');
+}
+
+function exportFile(){
+  var src=document.documentElement.outerHTML;
+  var json=JSON.stringify(apps,null,4).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+  src=src.replace(/var DEFAULT_APPS=\[[\s\S]*?\];/,'var DEFAULT_APPS='+json+';');
+  src=src.replace(/var sheetConfig=\{[^}]*\};/,'var sheetConfig='+JSON.stringify(sheetConfig)+';');
+  src=src.replace(/var unitInfo=\{[^}]*\};/,'var unitInfo='+JSON.stringify(unitInfo)+';');
+  var blob=new Blob([src],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portal-tpi.html';a.click();URL.revokeObjectURL(a.href);
+  showToast('✓ portal-tpi.html berhasil diunduh','success');
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+(type||'');
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeModal();closeSheetModal();}
+  if(e.key==='Enter'&&document.getElementById('overlay').classList.contains('open')){
+    if(document.activeElement.tagName!=='BUTTON')saveApp();
+  }
+});
+
+loadStorage();render();
+</script>
