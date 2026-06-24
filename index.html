@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Portal Aplikasi UPT-TPI</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e1117;--surface:#161b27;--surface2:#1e2538;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8eaf0;--muted:#6b7280;--muted2:#9ca3af;
+  --accent:#3b82f6;--accent-glow:rgba(59,130,246,0.35);
+  --radius:16px;--rad-sm:10px;
+  --font:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"Consolas","Courier New",monospace;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Grid background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0;
+}
+
+/* Animated gradient orbs */
+.orb{
+  position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+  opacity:0.15;animation:orbFloat 20s ease-in-out infinite;
+}
+.orb-1{
+  width:400px;height:400px;background:#3b82f6;
+  top:-100px;left:-100px;animation-delay:0s;
+}
+.orb-2{
+  width:350px;height:350px;background:#10b981;
+  bottom:-80px;right:-80px;animation-delay:-7s;
+}
+.orb-3{
+  width:300px;height:300px;background:#8b5cf6;
+  top:40%;left:60%;animation-delay:-14s;
+}
+@keyframes orbFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(30px,-40px) scale(1.1)}
+  50%{transform:translate(-20px,20px) scale(0.95)}
+  75%{transform:translate(40px,30px) scale(1.05)}
+}
+
+/* ===== LOGIN CONTAINER ===== */
+.login-wrap{
+  position:relative;z-index:1;
+  width:100%;max-width:420px;
+  padding:24px;
+}
+
+/* Glassmorphism card */
+.login-card{
+  background:linear-gradient(145deg, rgba(22,27,39,0.95), rgba(30,37,56,0.9));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:40px 36px 32px;
+  backdrop-filter:blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 24px 64px rgba(0,0,0,0.5),
+    0 0 80px rgba(59,130,246,0.08);
+  position:relative;
+  overflow:hidden;
+  animation:cardIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+  opacity:0;transform:translateY(20px);
+}
+@keyframes cardIn{
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Top glow line */
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2.5px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0.6;
+}
+
+/* ===== HEADER ===== */
+.login-header{
+  text-align:center;margin-bottom:32px;
+}
+.login-logo{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg, #0c3a5a, #1a5a8a);
+  border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 16px;
+  box-shadow:0 0 20px rgba(59,130,246,0.2);
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%,100%{box-shadow:0 0 20px rgba(59,130,246,0.2)}
+  50%{box-shadow:0 0 30px rgba(59,130,246,0.4)}
+}
+.login-title{
+  font-size:22px;font-weight:700;letter-spacing:-0.3px;
+  margin-bottom:4px;
+}
+.login-sub{
+  font-size:13px;color:var(--muted);
+}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:18px;position:relative;}
+.form-label{
+  display:block;font-size:11px;font-weight:600;
+  letter-spacing:0.5px;text-transform:uppercase;
+  color:var(--muted2);margin-bottom:7px;
+}
+.input-wrap{position:relative;}
+.input-icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:15px;color:var(--muted);pointer-events:none;
+  transition:color 0.2s;
+}
+.form-input{
+  width:100%;padding:11px 14px 11px 40px;
+  background:var(--bg);
+  border:1.5px solid var(--border2);
+  border-radius:var(--rad-sm);
+  font-family:var(--font);font-size:14px;color:var(--text);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s,background 0.2s;
+}
+.form-input::placeholder{color:var(--muted);}
+.form-input:hover{border-color:rgba(255,255,255,0.2);}
+.form-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+  background:rgba(59,130,246,0.03);
+}
+.form-input:focus + .input-icon,
+.input-wrap:focus-within .input-icon{color:var(--accent);}
+
+/* Password toggle */
+.pw-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);font-size:14px;
+  cursor:pointer;padding:4px;transition:color 0.2s;
+}
+.pw-toggle:hover{color:var(--text);}
+
+/* Remember & Forgot */
+.form-extras{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:22px;font-size:12px;
+}
+.remember-wrap{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  color:var(--muted2);transition:color 0.2s;
+}
+.remember-wrap:hover{color:var(--text);}
+.remember-wrap input{
+  width:16px;height:16px;accent-color:var(--accent);
+  cursor:pointer;
+}
+.forgot-link{
+  color:var(--accent);text-decoration:none;font-size:12px;
+  transition:color 0.2s,opacity 0.2s;
+}
+.forgot-link:hover{color:#93c5fd;text-decoration:underline;}
+
+/* ===== BUTTON ===== */
+.btn-login{
+  width:100%;padding:12px;
+  background:linear-gradient(135deg, #3b82f6, #2563eb);
+  border:none;border-radius:var(--rad-sm);
+  font-family:var(--font);font-size:14px;font-weight:600;
+  color:#fff;cursor:pointer;
+  box-shadow:0 4px 16px rgba(59,130,246,0.3);
+  transition:transform 0.15s,box-shadow 0.2s,opacity 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;overflow:hidden;
+}
+.btn-login::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.btn-login:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px rgba(59,130,246,0.4);
+}
+.btn-login:hover::before{opacity:1;}
+.btn-login:active{transform:translateY(0) scale(0.98);}
+.btn-login:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+/* Loading spinner */
+.spinner{
+  width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.6s linear infinite;display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-login.loading .spinner{display:inline-block;}
+.btn-login.loading .btn-text{opacity:0.7;}
+
+/* ===== DIVIDER ===== */
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin:22px 0;font-size:11px;color:var(--muted);
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);
+}
+
+/* ===== SOCIAL LOGIN ===== */
+.social-row{
+  display:flex;gap:10px;
+}
+.social-btn{
+  flex:1;padding:10px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--rad-sm);
+  font-family:var(--font);font-size:13px;
+  color:var(--text);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background 0.2s,border-color 0.2s,transform 0.15s;
+}
+.social-btn:hover{
+  background:var(--surface);
+  border-color:var(--border2);
+  transform:translateY(-1px);
+}
+.social-btn svg{width:16px;height:16px;}
+
+/* ===== FOOTER ===== */
+.login-footer{
+  text-align:center;margin-top:24px;
+  font-size:12px;color:var(--muted);
+}
+.login-footer a{
+  color:var(--accent);text-decoration:none;
+  transition:color 0.2s;
+}
+.login-footer a:hover{color:#93c5fd;text-decoration:underline;}
+
+/* ===== ERROR / SUCCESS ===== */
+.msg-box{
+  padding:10px 14px;border-radius:var(--rad-sm);
+  font-size:12.5px;margin-bottom:16px;display:none;
+  animation:msgIn 0.3s ease;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.msg-box.show{display:block;}
+.msg-box.err{
+  background:rgba(239,68,68,0.08);color:#ef4444;
+  border:1px solid rgba(239,68,68,0.25);
+}
+.msg-box.ok{
+  background:rgba(16,185,129,0.08);color:#10b981;
+  border:1px solid rgba(16,185,129,0.25);
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:#1e2538;border:1px solid var(--border2);
+  border-radius:10px;padding:10px 20px;font-size:13px;
+  color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);
+  pointer-events:none;transition:transform .25s,opacity .25s;
+  opacity:0;z-index:999;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:480px){
+  .login-card{padding:28px 22px 24px;}
+  .login-title{font-size:20px;}
+  .orb-1{width:250px;height:250px;}
+  .orb-2{width:200px;height:200px;}
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .login-card,.orb{animation:none;}
+  .login-card{opacity:1;transform:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated background orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">🛳️</div>
+      <div class="login-title">Portal Aplikasi UPT-TPI</div>
+      <div class="login-sub">UPT Tempat Pelelangan Ikan</div>
+    </div>
+
+    <div class="msg-box" id="msgBox"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Username / Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" class="form-input" id="username" placeholder="Masukkan username atau email" autocomplete="username" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-input" id="password" placeholder="Masukkan password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" onclick="togglePw()" title="Tampilkan/Sembunyikan password">👁️</button>
+        </div>
+      </div>
+
+      <div class="form-extras">
+        <label class="remember-wrap">
+          <input type="checkbox" id="rememberMe">
+          <span>Ingat saya</span>
+        </label>
+        <a href="#" class="forgot-link" onclick="showForgot()">Lupa password?</a>
+      </div>
+
+      <button type="submit" class="btn-login" id="btnLogin">
+        <span class="spinner"></span>
+        <span class="btn-text">Masuk ke Portal</span>
+      </button>
+    </form>
+
+    <div class="divider">atau masuk dengan</div>
+
+    <div class="social-row">
+      <button class="social-btn" onclick="socialLogin('google')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+      <button class="social-btn" onclick="socialLogin('microsoft')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+        Microsoft
+      </button>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    Belum punya akun? <a href="#" onclick="showRegister()">Daftar sekarang</a>
+    <br><br>
+    <span style="font-size:11px;color:var(--muted)">Dikembangkan oleh <strong>Doni Yan Ariyanto / Rumah Koding Rembang</strong></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== LOGIN HANDLER ===== */
+function handleLogin(e){
+  e.preventDefault();
+  var user = document.getElementById('username').value.trim();
+  var pass = document.getElementById('password').value;
+  var btn = document.getElementById('btnLogin');
+  var msg = document.getElementById('msgBox');
+
+  if(!user || !pass){
+    showMsg('Mohon isi username dan password','err');
+    return;
+  }
+
+  // Loading state
+  btn.classList.add('loading');
+  btn.disabled = true;
+  msg.classList.remove('show');
+
+  // Simulasi proses login (ganti dengan API backend Anda)
+  setTimeout(function(){
+    btn.classList.remove('loading');
+    btn.disabled = false;
+
+    // Contoh validasi sederhana (ganti dengan validasi API)
+    if(user === 'admin' && pass === 'admin123'){
+      showMsg('✓ Login berhasil! Mengalihkan…','ok');
+      // Simpan session
+      localStorage.setItem('tpi_logged_in','true');
+      localStorage.setItem('tpi_user',JSON.stringify({name:user,role:'admin'}));
+      if(document.getElementById('rememberMe').checked){
+        localStorage.setItem('tpi_remember','true');
+      }
+      setTimeout(function(){
+        window.location.href = 'portal.html';
+      },800);
+    } else {
+      showMsg('✗ Username atau password salah','err');
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+    }
+  },1200);
+}
+
+/* ===== TOGGLE PASSWORD ===== */
+function togglePw(){
+  var inp = document.getElementById('password');
+  var btn = document.querySelector('.pw-toggle');
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+/* ===== MESSAGE BOX ===== */
+function showMsg(text,type){
+  var msg = document.getElementById('msgBox');
+  msg.textContent = text;
+  msg.className = 'msg-box show ' + (type||'');
+}
+
+/* ===== TOAST ===== */
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+/* ===== SOCIAL LOGIN ===== */
+function socialLogin(provider){
+  showToast('Login dengan ' + provider + ' — fitur ini memerlukan integrasi OAuth');
+}
+
+/* ===== FORGOT PASSWORD ===== */
+function showForgot(){
+  showToast('Fitur reset password — hubungi admin');
+}
+
+/* ===== REGISTER ===== */
+function showRegister(){
+  showToast('Fitur pendaftaran — hubungi admin');
+}
+
+/* ===== AUTO-FOCUS ===== */
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('username').focus();
+});
+
+/* ===== KEYBOARD SHORTCUT ===== */
+document.addEventListener('keydown',function(e){
+  if(e.key === 'Enter' && e.target.tagName !== 'BUTTON'){
+    // Let form handle it
+  }
+});
+</script>
+</body>
+</html>
